@@ -49,6 +49,22 @@ namespace CheckpointAPI1.Controllers
             }
         }
 
+        [HttpGet("Employee_DataList")]
+        public ActionResult<IEnumerable<EmployeeWithRole>> GetAllEmployees()
+        {
+            using (IDbConnection db = Connection)
+            {
+                // Получаем всех сотрудников из базы данных
+                var employees = db.Query<EmployeeWithRole>(@"
+                                                    SELECT e.*, r.Title AS RoleTitle
+                                                    FROM Employee e
+                                                    JOIN Role r ON e.IDRole = r.ID").ToList();
+
+                // Возвращаем список сотрудников
+                return Ok(employees);
+            }
+        }
+
         [HttpGet("AdditionAccess_DataList",Name = "AdditionAccessDataList")]
         public ActionResult<IEnumerable<AddiotionalAccess>> GetAdditionalAccesses()
         {
@@ -74,12 +90,26 @@ namespace CheckpointAPI1.Controllers
             public string Password { get; set; }
         }
 
+        public class EmployeeWithRole : Employee
+        {
+            public string RoleTitle { get; set; }
+        }
+
         public class Employee
         {
             public int ID { get; set; }
+            public string FirstName { get; set; }
+            public string Patronomyc { get; set; }
+            public string LastName { get; set; }
+            public DateTime LastVisitDate { get; set; }
+            public bool isInside { get; set; }
+            public int IDRole { get; set; }
+            public int IDAdditionAccess { get; set; }
+            public string PassportSeries { get; set; }
+            public string PassportNumber { get; set; }
+            public string INN { get; set; }
             public string Login { get; set; }
             public string Password { get; set; }
-            // Добавьте другие поля с данными о сотруднике
         }
     }
 }
