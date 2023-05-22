@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using System.Data;
+using CheckpointAPI.Models;
 using Dapper;
 
 
@@ -105,65 +106,116 @@ namespace CheckpointAPI1.Controllers
             }
         }
 
-        public class CheckpointWithOfficeName : Checkpoint
+        [HttpGet("Role_DataList")]
+        public ActionResult<IEnumerable<Role>> GetAllRoles()
         {
-            public string OfficeTitle { get; set; }
+            using (IDbConnection db = Connection)
+            {
+                var roles = db.Query<Role>(@"
+                            SELECT * FROM [Role]").ToList();
+
+                return Ok(roles);
+            }
         }
 
-        public class Checkpoint
+        [HttpGet("CheckpointRole_DataList")]
+        public ActionResult<IEnumerable<CheckpointRoleWithTitleID>> GetAllCheckpointRoles()
         {
-            public int ID { get; set; }
-            public string Title { get; set; }
-            public int IDOffice { get; set; }
-            public bool IsActive { get; set; }
+            using (IDbConnection db = Connection)
+            {
+                var checkpointroles = db.Query<CheckpointRoleWithTitleID>(@"
+                            SELECT cr.*, c.ID as 'CheckpointID', c.Title as 'CheckpointTitle' FROM [CheckpointRole] cr 
+                            INNER JOIN [Checkpoint] c ON c.ID = cr.IDCheckpoint").ToList();
+
+                return Ok(checkpointroles);
+            }
         }
 
-        public class OfficeWithCity : Office
+        [HttpGet("CheckpointAdditionalAccess_DataList")]
+        public ActionResult<IEnumerable<CheckpointAdditionalAccess>> CheckpointAdditionalAccesses()
         {
-            public string CityName { get; set; }
+            using (IDbConnection db = Connection)
+            {
+                var checkpointaddiotionaccess = db.Query<CheckpointAdditionalAccess>(@"
+                            SELECT * FROM [CheckpointAdditionalAccess]").ToList();
+
+                return Ok(checkpointaddiotionaccess);
+            }
         }
 
-        public class Office
+        [HttpDelete("DeleteCheckpointRole")]
+        public ActionResult DeleteCheckpointRole(int IDRole, int IDCheckpoint)
         {
-            public int ID { get; set; }
-            public string Title { get; set; }
-            public string Address { get; set; }
-            public int IDCity { get; set; }
+            using (IDbConnection db = Connection)
+            {
+                // Проверяем наличие записи в таблице связи CheckpointRole
+                var existingRecord = db.QueryFirstOrDefault<CheckpointRole>(@"
+                                SELECT *
+                                FROM CheckpointRole
+                                WHERE IDRole = @IDRole AND IDCheckpoint = @IDCheckpoint",
+                                        new { IDRole, IDCheckpoint });
+
+                if (existingRecord == null)
+                {
+                    // Запись не найдена, возвращаем сообщение об ошибке или другой HTTP-код по вашему усмотрению
+                    return NotFound();
+                }
+
+                // Удаляем запись из таблицы связи CheckpointRole
+                int affectedRows = db.Execute(@"
+                            DELETE FROM CheckpointRole
+                            WHERE IDRole = @IDRole AND IDCheckpoint = @IDCheckpoint",
+                                    new { IDRole, IDCheckpoint });
+
+                if (affectedRows > 0)
+                {
+                    // Запись успешно удалена, возвращаем сообщение об успехе или другой HTTP-код по вашему усмотрению
+                    return Ok();
+                }
+                else
+                {
+                    // При удалении возникла ошибка, возвращаем сообщение об ошибке или другой HTTP-код по вашему усмотрению
+                    return StatusCode(500, "Failed to delete the record.");
+                }
+            }
         }
 
-
-        public class AddiotionalAccess
+        [HttpPost("AddCheckpointRole")]
+        public ActionResult AddCheckpointRole(int IDRole, int IDCheckpoint)
         {
-            public int ID { get; set; }
-            public string Title { get; set; }
-        }
+            using (IDbConnection db = Connection)
+            {
 
-        public class LoginRequest
-        {
-            public string Username { get; set; }
-            public string Password { get; set; }
-        }
+                // Проверяем наличие записи в таблице связи CheckpointRole
+                var existingRecord = db.QuerySingleOrDefault<CheckpointRole>(@"
+                                SELECT *
+                                FROM CheckpointRole
+                                WHERE IDRole = @IDRole AND IDCheckpoint = @IDCheckpoint",
+                                            new { IDRole, IDCheckpoint });
 
-        public class EmployeeWithRole : Employee
-        {
-            public string RoleTitle { get; set; }
-        }
+                if (existingRecord != null)
+                {
+                    // Запись уже существует, возвращаем сообщение об ошибке или другой HTTP-код по вашему усмотрению
+                    return Conflict("Record already exists.");
+                }
 
-        public class Employee
-        {
-            public int ID { get; set; }
-            public string FirstName { get; set; }
-            public string Patronomyc { get; set; }
-            public string LastName { get; set; }
-            public DateTime LastVisitDate { get; set; }
-            public bool isInside { get; set; }
-            public int IDRole { get; set; }
-            public int IDAdditionAccess { get; set; }
-            public string PassportSeries { get; set; }
-            public string PassportNumber { get; set; }
-            public string INN { get; set; }
-            public string Login { get; set; }
-            public string Password { get; set; }
+                // Добавляем запись в таблицу связи CheckpointRole
+                int affectedRows = db.Execute(@"
+                            INSERT INTO CheckpointRole (IDRole, IDCheckpoint, DateAdd)
+                            VALUES (@IDRole, @IDCheckpoint, GETDATE())",
+                                        new { IDRole, IDCheckpoint });
+
+                if (affectedRows > 0)
+                {
+                    // Запись успешно добавлена, возвращаем сообщение об успехе или другой HTTP-код по вашему усмотрению
+                    return Ok();
+                }
+                else
+                {
+                    // При добавлении возникла ошибка, возвращаем сообщение об ошибке или другой HTTP-код по вашему усмотрению
+                    return StatusCode(500, "Failed to add the record.");
+                }
+            }
         }
     }
 }
