@@ -56,16 +56,16 @@ namespace CheckpointAPI1.Controllers
             {
                 // Получаем всех сотрудников из базы данных
                 var employees = db.Query<EmployeeWithRole>(@"
-                                                    SELECT e.*, r.Title AS RoleTitle
-                                                    FROM Employee e
-                                                    JOIN Role r ON e.IDRole = r.ID").ToList();
+                                                            SELECT e.*, r.Title AS RoleTitle
+                                                            FROM Employee e
+                                                            JOIN Role r ON e.IDRole = r.ID").ToList();
 
                 // Возвращаем список сотрудников
                 return Ok(employees);
             }
         }
 
-        [HttpGet("AdditionAccess_DataList",Name = "AdditionAccessDataList")]
+        [HttpGet("AdditionAccess_DataList", Name = "AdditionAccessDataList")]
         public ActionResult<IEnumerable<AddiotionalAccess>> GetAdditionalAccesses()
         {
             // Установка соединения с базой данных
@@ -77,6 +77,60 @@ namespace CheckpointAPI1.Controllers
                 return Ok(result);
             }
         }
+
+        [HttpGet("Office_DataList", Name = "OfficeDataList")]
+        public ActionResult<IEnumerable<OfficeWithCity>> GetAllOffices()
+        {
+            using (IDbConnection db = Connection)
+            {
+                var offices = db.Query<OfficeWithCity>(@"
+                                                        SELECT o.*, c.Title AS CityName
+                                                        FROM Office o
+                                                        INNER JOIN City c ON c.ID = o.IDCity").ToList();
+                return Ok(offices);
+            }
+        }
+
+        [HttpGet("Checkpoint_DataList")]
+        public ActionResult<IEnumerable<CheckpointWithOfficeName>> GetAllCheckpoints()
+        {
+            using (IDbConnection db = Connection)
+            {
+                var checkpoints = db.Query<CheckpointWithOfficeName>(@"
+                            SELECT cp.*, o.Title AS OfficeTitle
+                            FROM [Checkpoint] cp
+                            JOIN Office o ON cp.IDOffice = o.ID").ToList();
+
+                return Ok(checkpoints);
+            }
+        }
+
+        public class CheckpointWithOfficeName : Checkpoint
+        {
+            public string OfficeTitle { get; set; }
+        }
+
+        public class Checkpoint
+        {
+            public int ID { get; set; }
+            public string Title { get; set; }
+            public int IDOffice { get; set; }
+            public bool IsActive { get; set; }
+        }
+
+        public class OfficeWithCity : Office
+        {
+            public string CityName { get; set; }
+        }
+
+        public class Office
+        {
+            public int ID { get; set; }
+            public string Title { get; set; }
+            public string Address { get; set; }
+            public int IDCity { get; set; }
+        }
+
 
         public class AddiotionalAccess
         {
