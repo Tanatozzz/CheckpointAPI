@@ -319,9 +319,9 @@ namespace CheckpointAPI1.Controllers
                 existingEmployee.INN = updatedEmployee.INN;
                 existingEmployee.Login = updatedEmployee.Login;
                 existingEmployee.Password = updatedEmployee.Password;
-
+                int affectedRows;
                 // Выполняем обновление записи в базе данных
-                int affectedRows = db.Execute(@"
+                affectedRows = db.Execute(@"
                     UPDATE Employee
                     SET FirstName = @FirstName,
                         Patronomyc = @Patronomyc,
@@ -335,8 +335,9 @@ namespace CheckpointAPI1.Controllers
                         INN = @INN,
                         Login = @Login,
                         Password = @Password
-                    WHERE ID = @ID",
-                        existingEmployee);
+                        WHERE ID = @ID",
+                    existingEmployee);
+
 
                 if (affectedRows > 0)
                 {
