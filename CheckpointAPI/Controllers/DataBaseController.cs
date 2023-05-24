@@ -132,12 +132,12 @@ namespace CheckpointAPI1.Controllers
         }
 
         [HttpGet("CheckpointAdditionalAccess_DataList")]
-        public ActionResult<IEnumerable<CheckpointAdditionalAccess>> CheckpointAdditionalAccesses()
+        public ActionResult<IEnumerable<CheckpointAdditionalAccessWithTitleID>> CheckpointAdditionalAccesses()
         {
             using (IDbConnection db = Connection)
             {
-                var checkpointaddiotionaccess = db.Query<CheckpointAdditionalAccess>(@"
-                            SELECT * FROM [CheckpointAdditionalAccess]").ToList();
+                var checkpointaddiotionaccess = db.Query<CheckpointAdditionalAccessWithTitleID>(@"
+                            SELECT caa.*, c.ID as 'CheckpointID', c.Title as 'CheckpointTitle' FROM [CheckpointAdditionalAccess] caa INNER JOIN [Checkpoint] c ON c.ID = caa.IDCheckpoint").ToList();
 
                 return Ok(checkpointaddiotionaccess);
             }
@@ -157,7 +157,7 @@ namespace CheckpointAPI1.Controllers
 
                 if (existingRecord == null)
                 {
-                    // Запись не найдена, возвращаем сообщение об ошибке или другой HTTP-код по вашему усмотрению
+                    // Запись не найдена, возвращаем сообщение об ошибке или другой HTTP-код по усмотрению
                     return NotFound();
                 }
 
@@ -169,12 +169,49 @@ namespace CheckpointAPI1.Controllers
 
                 if (affectedRows > 0)
                 {
-                    // Запись успешно удалена, возвращаем сообщение об успехе или другой HTTP-код по вашему усмотрению
+                    // Запись успешно удалена, возвращаем сообщение об успехе или другой HTTP-код по усмотрению
                     return Ok();
                 }
                 else
                 {
-                    // При удалении возникла ошибка, возвращаем сообщение об ошибке или другой HTTP-код по вашему усмотрению
+                    // При удалении возникла ошибка, возвращаем сообщение об ошибке или другой HTTP-код по усмотрению
+                    return StatusCode(500, "Failed to delete the record.");
+                }
+            }
+        }
+
+        [HttpDelete("DeleteCheckpointAdditionalAccess")]
+        public ActionResult DeleteCheckpointAdditionalAccess(int IDAdditionalAccess, int IDCheckpoint)
+        {
+            using (IDbConnection db = Connection)
+            {
+                // Проверяем наличие записи в таблице связи CheckpointRole
+                var existingRecord = db.QueryFirstOrDefault<CheckpointAdditionalAccess>(@"
+                                SELECT *
+                                FROM CheckpointAdditionalAccess
+                                WHERE IDAdditionalAccess = @IDAdditionalAccess AND IDCheckpoint = @IDCheckpoint",
+                                        new { IDAdditionalAccess, IDCheckpoint });
+
+                if (existingRecord == null)
+                {
+                    // Запись не найдена, возвращаем сообщение об ошибке или другой HTTP-код по усмотрению
+                    return NotFound();
+                }
+
+                // Удаляем запись из таблицы связи CheckpointRole
+                int affectedRows = db.Execute(@"
+                            DELETE FROM CheckpointAdditionalAccess
+                            WHERE IDAdditionalAccess = @IDAdditionalAccess AND IDCheckpoint = @IDCheckpoint",
+                                    new { IDAdditionalAccess, IDCheckpoint });
+
+                if (affectedRows > 0)
+                {
+                    // Запись успешно удалена, возвращаем сообщение об успехе или другой HTTP-код по усмотрению
+                    return Ok();
+                }
+                else
+                {
+                    // При удалении возникла ошибка, возвращаем сообщение об ошибке или другой HTTP-код по усмотрению
                     return StatusCode(500, "Failed to delete the record.");
                 }
             }
@@ -195,7 +232,7 @@ namespace CheckpointAPI1.Controllers
 
                 if (existingRecord != null)
                 {
-                    // Запись уже существует, возвращаем сообщение об ошибке или другой HTTP-код по вашему усмотрению
+                    // Запись уже существует, возвращаем сообщение об ошибке или другой HTTP-код по усмотрению
                     return Conflict("Record already exists.");
                 }
 
@@ -207,13 +244,164 @@ namespace CheckpointAPI1.Controllers
 
                 if (affectedRows > 0)
                 {
-                    // Запись успешно добавлена, возвращаем сообщение об успехе или другой HTTP-код по вашему усмотрению
+                    // Запись успешно добавлена, возвращаем сообщение об успехе или другой HTTP-код по усмотрению
                     return Ok();
                 }
                 else
                 {
-                    // При добавлении возникла ошибка, возвращаем сообщение об ошибке или другой HTTP-код по вашему усмотрению
+                    // При добавлении возникла ошибка, возвращаем сообщение об ошибке или другой HTTP-код по усмотрению
                     return StatusCode(500, "Failed to add the record.");
+                }
+            }
+        }
+
+        [HttpPost("AddCheckpointAdditionalAccess")]
+        public ActionResult AddCheckpointAdditionalAccess(int IDAdditionalAccess, int IDCheckpoint)
+        {
+            using (IDbConnection db = Connection)
+            {
+
+                // Проверяем наличие записи в таблице связи CheckpointRole
+                var existingRecord = db.QuerySingleOrDefault<CheckpointAdditionalAccess>(@"
+                                SELECT *
+                                FROM CheckpointAdditionalAccess
+                                WHERE IDAdditionalAccess = @IDAdditionalAccess AND IDCheckpoint = @IDCheckpoint",
+                                            new { IDAdditionalAccess, IDCheckpoint });
+
+                if (existingRecord != null)
+                {
+                    // Запись уже существует, возвращаем сообщение об ошибке или другой HTTP-код по усмотрению
+                    return Conflict("Record already exists.");
+                }
+
+                // Добавляем запись в таблицу связи CheckpointRole
+                int affectedRows = db.Execute(@"
+                            INSERT INTO CheckpointAdditionalAccess (IDAdditionalAccess, IDCheckpoint, DateAdd)
+                            VALUES (@IDAdditionalAccess, @IDCheckpoint, GETDATE())",
+                                        new { IDAdditionalAccess, IDCheckpoint });
+
+                if (affectedRows > 0)
+                {
+                    // Запись успешно добавлена, возвращаем сообщение об успехе или другой HTTP-код по усмотрению
+                    return Ok();
+                }
+                else
+                {
+                    // При добавлении возникла ошибка, возвращаем сообщение об ошибке или другой HTTP-код по усмотрению
+                    return StatusCode(500, "Failed to add the record.");
+                }
+            }
+        }
+        [HttpPut("UpdateEmployee/{id}")]
+        public ActionResult UpdateEmployee(int id, Employee updatedEmployee)
+        {
+            using (IDbConnection db = Connection)
+            {
+                // Проверяем наличие сотрудника в базе данных
+                var existingEmployee = db.QueryFirstOrDefault<Employee>("SELECT * FROM Employee WHERE ID = @ID", new { ID = id });
+
+                if (existingEmployee == null)
+                {
+                    // Сотрудник не найден, возвращаем сообщение об ошибке или другой HTTP-код по усмотрению
+                    return NotFound();
+                }
+
+                // Обновляем все поля сотрудника
+                existingEmployee.FirstName = updatedEmployee.FirstName;
+                existingEmployee.Patronomyc = updatedEmployee.Patronomyc;
+                existingEmployee.LastName = updatedEmployee.LastName;
+                existingEmployee.LastVisitDate = updatedEmployee.LastVisitDate;
+                existingEmployee.isInside = updatedEmployee.isInside;
+                existingEmployee.IDRole = updatedEmployee.IDRole;
+                existingEmployee.IDAdditionAccess = updatedEmployee.IDAdditionAccess;
+                existingEmployee.PassportSeries = updatedEmployee.PassportSeries;
+                existingEmployee.PassportNumber = updatedEmployee.PassportNumber;
+                existingEmployee.INN = updatedEmployee.INN;
+                existingEmployee.Login = updatedEmployee.Login;
+                existingEmployee.Password = updatedEmployee.Password;
+
+                // Выполняем обновление записи в базе данных
+                int affectedRows = db.Execute(@"
+                    UPDATE Employee
+                    SET FirstName = @FirstName,
+                        Patronomyc = @Patronomyc,
+                        LastName = @LastName,
+                        LastVisitDate = @LastVisitDate,
+                        isInside = @isInside,
+                        IDRole = @IDRole,
+                        IDAdditionAccess = @IDAdditionAccess,
+                        PassportSeries = @PassportSeries,
+                        PassportNumber = @PassportNumber,
+                        INN = @INN,
+                        Login = @Login,
+                        Password = @Password
+                    WHERE ID = @ID",
+                        existingEmployee);
+
+                if (affectedRows > 0)
+                {
+                    // Запись успешно обновлена, возвращаем сообщение об успехе или другой HTTP-код по усмотрению
+                    return Ok();
+                }
+                else
+                {
+                    // При обновлении возникла ошибка, возвращаем сообщение об ошибке или другой HTTP-код по усмотрению
+                    return StatusCode(500, "Failed to update the record.");
+                }
+            }
+        }
+        // Метод для добавления нового работника
+        [HttpPost("AddEmployee")]
+        public ActionResult AddEmployee(Employee newEmployee)
+        {
+            using (IDbConnection db = Connection)
+            {
+                // Выполняем вставку новой записи в базу данных
+                int affectedRows = db.Execute(@"
+                    INSERT INTO Employee (FirstName, Patronomyc, LastName, IDRole, PassportSeries, PassportNumber, INN, Login, Password)
+                    VALUES (@FirstName, @Patronomyc, @LastName, @IDRole, @PassportSeries, @PassportNumber, @INN, @Login, @Password)",
+                        newEmployee);
+
+                if (affectedRows > 0)
+                {
+                    // Запись успешно добавлена, возвращаем сообщение об успехе или другой HTTP-код по усмотрению
+                    return Ok();
+                }
+                else
+                {
+                    // При добавлении возникла ошибка, возвращаем сообщение об ошибке или другой HTTP-код по усмотрению
+                    return StatusCode(500, "Failed to add the record.");
+                }
+            }
+        }
+
+        // Метод для удаления работника по ID
+        [HttpDelete("DeleteEmployee/{id}")]
+        public ActionResult DeleteEmployee(int id)
+        {
+            using (IDbConnection db = Connection)
+            {
+                // Проверяем наличие сотрудника в базе данных
+                var existingEmployee = db.QueryFirstOrDefault<Employee>("SELECT * FROM Employee WHERE ID = @ID", new { ID = id });
+
+                if (existingEmployee == null)
+                {
+                    // Сотрудник не найден, возвращаем сообщение об ошибке или другой HTTP-код по усмотрению
+                    return NotFound();
+                }
+
+                // Выполняем удаление записи из базы данных
+                int affectedRows = db.Execute("DELETE FROM Employee WHERE ID = @ID", new { ID = id });
+
+                if (affectedRows > 0)
+                {
+                    // Запись успешно удалена, возвращаем сообщение об успехе или другой HTTP-код по усмотрению
+                    return Ok();
+                }
+                else
+                {
+                    // При удалении возникла ошибка, возвращаем сообщение об ошибке или другой HTTP-код по усмотрению
+                    return StatusCode(500, "Failed to delete the record.");
                 }
             }
         }
