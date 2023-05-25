@@ -1,6 +1,6 @@
 ﻿namespace CheckpointAPI.Models
 {
-    public class Checkpoint
+    public class Checkpointt
     {
         public int ID { get; set; }
         public string Title { get; set; }

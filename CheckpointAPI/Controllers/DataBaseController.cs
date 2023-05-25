@@ -157,7 +157,7 @@ namespace CheckpointAPI1.Controllers
 
                 if (existingRecord == null)
                 {
-                    // Запись не найдена, возвращаем сообщение об ошибке или другой HTTP-код по усмотрению
+                    // Запись не найдена, возвращаем сообщение об ошибке
                     return NotFound();
                 }
 
@@ -169,12 +169,12 @@ namespace CheckpointAPI1.Controllers
 
                 if (affectedRows > 0)
                 {
-                    // Запись успешно удалена, возвращаем сообщение об успехе или другой HTTP-код по усмотрению
+                    // Запись успешно удалена, возвращаем сообщение об успехе
                     return Ok();
                 }
                 else
                 {
-                    // При удалении возникла ошибка, возвращаем сообщение об ошибке или другой HTTP-код по усмотрению
+                    // При удалении возникла ошибка, возвращаем сообщение об ошибке
                     return StatusCode(500, "Failed to delete the record.");
                 }
             }
@@ -194,7 +194,7 @@ namespace CheckpointAPI1.Controllers
 
                 if (existingRecord == null)
                 {
-                    // Запись не найдена, возвращаем сообщение об ошибке или другой HTTP-код по усмотрению
+                    // Запись не найдена, возвращаем сообщение об ошибке
                     return NotFound();
                 }
 
@@ -206,12 +206,12 @@ namespace CheckpointAPI1.Controllers
 
                 if (affectedRows > 0)
                 {
-                    // Запись успешно удалена, возвращаем сообщение об успехе или другой HTTP-код по усмотрению
+                    // Запись успешно удалена, возвращаем сообщение об успехе
                     return Ok();
                 }
                 else
                 {
-                    // При удалении возникла ошибка, возвращаем сообщение об ошибке или другой HTTP-код по усмотрению
+                    // При удалении возникла ошибка, возвращаем сообщение об ошибке
                     return StatusCode(500, "Failed to delete the record.");
                 }
             }
@@ -232,7 +232,7 @@ namespace CheckpointAPI1.Controllers
 
                 if (existingRecord != null)
                 {
-                    // Запись уже существует, возвращаем сообщение об ошибке или другой HTTP-код по усмотрению
+                    // Запись уже существует, возвращаем сообщение об ошибке
                     return Conflict("Record already exists.");
                 }
 
@@ -244,12 +244,12 @@ namespace CheckpointAPI1.Controllers
 
                 if (affectedRows > 0)
                 {
-                    // Запись успешно добавлена, возвращаем сообщение об успехе или другой HTTP-код по усмотрению
+                    // Запись успешно добавлена, возвращаем сообщение об успехе
                     return Ok();
                 }
                 else
                 {
-                    // При добавлении возникла ошибка, возвращаем сообщение об ошибке или другой HTTP-код по усмотрению
+                    // При добавлении возникла ошибка, возвращаем сообщение об ошибке
                     return StatusCode(500, "Failed to add the record.");
                 }
             }
@@ -270,7 +270,7 @@ namespace CheckpointAPI1.Controllers
 
                 if (existingRecord != null)
                 {
-                    // Запись уже существует, возвращаем сообщение об ошибке или другой HTTP-код по усмотрению
+                    // Запись уже существует, возвращаем сообщение об ошибке
                     return Conflict("Record already exists.");
                 }
 
@@ -282,12 +282,12 @@ namespace CheckpointAPI1.Controllers
 
                 if (affectedRows > 0)
                 {
-                    // Запись успешно добавлена, возвращаем сообщение об успехе или другой HTTP-код по усмотрению
+                    // Запись успешно добавлена, возвращаем сообщение об успехе
                     return Ok();
                 }
                 else
                 {
-                    // При добавлении возникла ошибка, возвращаем сообщение об ошибке или другой HTTP-код по усмотрению
+                    // При добавлении возникла ошибка, возвращаем сообщение об ошибке
                     return StatusCode(500, "Failed to add the record.");
                 }
             }
@@ -302,7 +302,7 @@ namespace CheckpointAPI1.Controllers
 
                 if (existingEmployee == null)
                 {
-                    // Сотрудник не найден, возвращаем сообщение об ошибке или другой HTTP-код по усмотрению
+                    // Сотрудник не найден, возвращаем сообщение об ошибке
                     return NotFound();
                 }
 
@@ -341,12 +341,12 @@ namespace CheckpointAPI1.Controllers
 
                 if (affectedRows > 0)
                 {
-                    // Запись успешно обновлена, возвращаем сообщение об успехе или другой HTTP-код по усмотрению
+                    // Запись успешно обновлена, возвращаем сообщение об успехе
                     return Ok();
                 }
                 else
                 {
-                    // При обновлении возникла ошибка, возвращаем сообщение об ошибке или другой HTTP-код по усмотрению
+                    // При обновлении возникла ошибка, возвращаем сообщение об ошибке
                     return StatusCode(500, "Failed to update the record.");
                 }
             }
@@ -365,12 +365,12 @@ namespace CheckpointAPI1.Controllers
 
                 if (affectedRows > 0)
                 {
-                    // Запись успешно добавлена, возвращаем сообщение об успехе или другой HTTP-код по усмотрению
+                    // Запись успешно добавлена, возвращаем сообщение об успехе
                     return Ok();
                 }
                 else
                 {
-                    // При добавлении возникла ошибка, возвращаем сообщение об ошибке или другой HTTP-код по усмотрению
+                    // При добавлении возникла ошибка, возвращаем сообщение об ошибке
                     return StatusCode(500, "Failed to add the record.");
                 }
             }
@@ -387,7 +387,7 @@ namespace CheckpointAPI1.Controllers
 
                 if (existingEmployee == null)
                 {
-                    // Сотрудник не найден, возвращаем сообщение об ошибке или другой HTTP-код по усмотрению
+                    // Сотрудник не найден, возвращаем сообщение об ошибке
                     return NotFound();
                 }
 
@@ -396,13 +396,78 @@ namespace CheckpointAPI1.Controllers
 
                 if (affectedRows > 0)
                 {
-                    // Запись успешно удалена, возвращаем сообщение об успехе или другой HTTP-код по усмотрению
+                    // Запись успешно удалена, возвращаем сообщение об успехе
                     return Ok();
                 }
                 else
                 {
-                    // При удалении возникла ошибка, возвращаем сообщение об ошибке или другой HTTP-код по усмотрению
+                    // При удалении возникла ошибка, возвращаем сообщение об ошибке
                     return StatusCode(500, "Failed to delete the record.");
+                }
+            }
+        }
+
+        [HttpPut("UpdateCheckpoint/{id}")]
+        public ActionResult UpdateCheckpoint(int id, Checkpointt checkpoint)
+        {
+            using (IDbConnection db = Connection)
+            {
+                // Проверяем наличие прохода в базе данных
+                var existingCheckpoint = db.QueryFirstOrDefault<Checkpointt>("SELECT * FROM [Checkpoint] WHERE ID = @ID", new { ID = id });
+
+                if (existingCheckpoint == null)
+                {
+                    // Проход не найден, возвращаем сообщение об ошибке
+                    return NotFound();
+                }
+
+                // Обновляем активность прохода
+                existingCheckpoint.ID = checkpoint.ID;
+                existingCheckpoint.Title = checkpoint.Title;
+                existingCheckpoint.IDOffice = checkpoint.IDOffice;
+                existingCheckpoint.IsActive = checkpoint.IsActive;
+
+                // Выполняем обновление записи в базе данных
+                int affectedRows = db.Execute(@"
+                    UPDATE [Checkpoint]
+                    SET Title = @Title,
+                        IDOffice = @IDOffice,
+                        IsActive = @IsActive
+                    WHERE ID = @ID",
+                    existingCheckpoint);
+
+                if (affectedRows > 0)
+                {
+                    // Запись успешно обновлена, возвращаем сообщение об успехе
+                    return Ok();
+                }
+                else
+                {
+                    // При обновлении возникла ошибка, возвращаем сообщение об ошибке
+                    return StatusCode(500, "Failed to update the record.");
+                }
+            }
+        }
+        [HttpPost("AddCheckpoint")]
+        public ActionResult AddCheckpoint(Checkpointt newCheckpoint)
+        {
+            using (IDbConnection db = Connection)
+            {
+                // Выполняем вставку новой записи в базу данных
+                int affectedRows = db.Execute(@"
+                INSERT INTO [Checkpoint] (Title, IDOffice, isActive)
+                VALUES (@Title, @IDOffice, @isActive)",
+                    newCheckpoint);
+
+                if (affectedRows > 0)
+                {
+                    // Запись успешно добавлена, возвращаем сообщение об успехе
+                    return Ok();
+                }
+                else
+                {
+                    // При добавлении возникла ошибка, возвращаем сообщение об ошибке
+                    return StatusCode(500, "Failed to add the record.");
                 }
             }
         }
