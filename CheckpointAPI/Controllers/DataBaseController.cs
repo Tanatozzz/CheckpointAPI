@@ -471,5 +471,44 @@ namespace CheckpointAPI1.Controllers
                 }
             }
         }
+        [HttpGet("CheckAccess/{idCheckpoint}/{idEmployee}")]
+        public ActionResult<bool> CheckAccess(int idCheckpoint, int idEmployee)
+        {
+            using (IDbConnection db = Connection)
+            {
+                // Проверяем наличие прохода в базе данных
+                var checkpoint = db.QueryFirstOrDefault<Checkpointt>("SELECT * FROM [Checkpoint] WHERE ID = @ID", new { ID = idCheckpoint });
+
+                if (checkpoint == null)
+                {
+                    // Проход не найден, возвращаем сообщение об ошибке или false в случае отсутствия прохода
+                    return NotFound();
+                }
+
+                // Проверяем доступ сотрудника к проходу на основе триггера в базе данных
+                var parameters = new
+                {
+                    EmployeeID = idEmployee,
+                    CheckpointOpened = idCheckpoint
+                };
+
+                bool hasAccess = db.QuerySingleOrDefault<bool>(@"
+                    DECLARE @EmployeeRole int = (SELECT IDRole FROM Employee WHERE ID = @EmployeeID);
+                    DECLARE @EmployeeAddAccess int = (SELECT IDAdditionAccess FROM Employee WHERE ID = @EmployeeID);
+
+                    IF ((SELECT COUNT(*) FROM CheckpointRole WHERE IDRole = @EmployeeID AND IDCheckpoint = @CheckpointOpened) < 1)
+                        AND ((SELECT COUNT(*) FROM CheckpointAdditionalAccess WHERE IDAdditionalAccess = @EmployeeAddAccess AND IDCheckpoint = @CheckpointOpened) < 1)
+                    BEGIN
+                        SELECT CAST(0 AS BIT); -- Access denied
+                    END
+                    ELSE
+                    BEGIN
+                        SELECT CAST(1 AS BIT); -- Access granted
+                    END",
+                parameters);
+
+                return hasAccess;
+            }
+        }
     }
 }
