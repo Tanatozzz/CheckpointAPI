@@ -8,6 +8,7 @@ using CheckpointAPI.Models;
 using Dapper;
 
 
+
 namespace CheckpointAPI1.Controllers
 {
     [Route("api/[controller]")]
@@ -42,6 +43,8 @@ namespace CheckpointAPI1.Controllers
                 if (employee != null && employee.Password == request.Password)
                 {
                     // Возвращаем успешный результат с информацией о сотруднике
+                    string nickname = request.Username;
+                    Console.WriteLine("Request to API Login " + nickname);
                     return Ok(employee);
                 }
 
@@ -500,10 +503,14 @@ namespace CheckpointAPI1.Controllers
                         AND ((SELECT COUNT(*) FROM CheckpointAdditionalAccess WHERE IDAdditionalAccess = @EmployeeAddAccess AND IDCheckpoint = @CheckpointOpened) < 1)
                     BEGIN
                         SELECT CAST(0 AS BIT); -- Access denied
+                        INSERT INTO UnauthorizedAccessLog (EmployeeID, CheckpointID, AccessTime)
+                        VALUES (@EmployeeID, @CheckpointOpened, GETDATE());
                     END
                     ELSE
                     BEGIN
                         SELECT CAST(1 AS BIT); -- Access granted
+                        INSERT INTO CheckpointEmployee(IDEmployee, IDCheckpoint, VisitDate)
+                        VALUES (@EmployeeID, @CheckpointOpened, GETDATE())
                     END",
                 parameters);
 
