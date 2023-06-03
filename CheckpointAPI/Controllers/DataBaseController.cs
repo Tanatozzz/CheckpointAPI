@@ -499,18 +499,18 @@ namespace CheckpointAPI1.Controllers
                     DECLARE @EmployeeRole int = (SELECT IDRole FROM Employee WHERE ID = @EmployeeID);
                     DECLARE @EmployeeAddAccess int = (SELECT IDAdditionAccess FROM Employee WHERE ID = @EmployeeID);
 
-                    IF ((SELECT COUNT(*) FROM CheckpointRole WHERE IDRole = @EmployeeID AND IDCheckpoint = @CheckpointOpened) < 1)
-                        AND ((SELECT COUNT(*) FROM CheckpointAdditionalAccess WHERE IDAdditionalAccess = @EmployeeAddAccess AND IDCheckpoint = @CheckpointOpened) < 1)
-                    BEGIN
-                        SELECT CAST(0 AS BIT); -- Access denied
-                        INSERT INTO UnauthorizedAccessLog (EmployeeID, CheckpointID, AccessTime)
-                        VALUES (@EmployeeID, @CheckpointOpened, GETDATE());
-                    END
-                    ELSE
+                    IF ((SELECT COUNT(*) FROM CheckpointRole WHERE IDRole = @EmployeeRole AND IDCheckpoint = @CheckpointOpened) >= 1)
+                        OR ((SELECT COUNT(*) FROM CheckpointAdditionalAccess WHERE IDAdditionalAccess = @EmployeeAddAccess AND IDCheckpoint = @CheckpointOpened) >= 1)
                     BEGIN
                         SELECT CAST(1 AS BIT); -- Access granted
                         INSERT INTO CheckpointEmployee(IDEmployee, IDCheckpoint, VisitDate)
                         VALUES (@EmployeeID, @CheckpointOpened, GETDATE())
+                    END
+                    ELSE
+                    BEGIN
+                        SELECT CAST(0 AS BIT); -- Access denied
+                        INSERT INTO UnauthorizedAccessLog (EmployeeID, CheckpointID, AccessTime)
+                        VALUES (@EmployeeID, @CheckpointOpened, GETDATE());
                     END",
                 parameters);
 
