@@ -518,7 +518,7 @@ namespace CheckpointAPI1.Controllers
             }
         }
         [HttpGet("EmployeeDoors/{employeeId}")]
-        public ActionResult<IEnumerable<Checkpointt>> GetEmployeeDoors(int employeeId)
+        public ActionResult<IEnumerable<CheckpointAccessedList>> GetEmployeeDoors(int employeeId)
         {
             using (IDbConnection db = Connection)
             {
@@ -532,8 +532,8 @@ namespace CheckpointAPI1.Controllers
                 }
 
                 // Query to get the list of doors accessible to the employee based on their role and additional access
-                var doors = db.Query<Checkpointt>(@"
-            SELECT DISTINCT c.ID, c.Title, o.Title
+                var doors = db.Query<CheckpointAccessedList>(@"
+            SELECT DISTINCT c.ID, c.Title as 'Title', o.Title as 'TitleOffice', c.isActive
             FROM [Checkpoint] c
             INNER JOIN Office o ON o.ID = c.IDOffice
             INNER JOIN CheckpointRole cr ON cr.IDCheckpoint = c.ID
